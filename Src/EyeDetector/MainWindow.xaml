@@ -1,0 +1,289 @@
+﻿<Window x:Class="EyeDetector.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EyeDetector"
+        
+        mc:Ignorable="d"
+        Title="MainWindow" Height="600" Width="800">
+    <!-- ### -->
+    <Grid Name="Main">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition/>
+            <RowDefinition Height="100"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="300"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <!-- Grid 0 -->
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="3">
+            <Menu>
+                <MenuItem Name="mFile" Header="Файл">
+                    <MenuItem Name="mFileOpen" Header="Открыть" Click="mFileOpen_Click"/>
+                    <MenuItem Name="mFileSave" Header="Сохранить" Click="mFileSave_Click"/>
+                    <MenuItem Name="mFileSaveAs" Header="Сохранить как..."/>
+                    <Separator></Separator>
+                    <MenuItem Name="mFileExit" Header="Выход"/>
+                </MenuItem>
+                <MenuItem Name="mColculate" Header="Обсчет">
+                    <MenuItem Name="mStart" Header="Старт" Click="mStart_Click"/>
+                    <MenuItem Name="mStop" Header="Стоп"/>
+                </MenuItem>
+                <MenuItem Name="mRect" Header="Область">
+                    <MenuItem Name="mRectEye" Header="Зрачек" Click="mRectEye_Click"/>
+                    <MenuItem Name="mRectPoint" Header="Точка" Click="mRectPoint_Click"/>
+                </MenuItem>
+                <MenuItem Name="mHelp" Header="Справка">
+                    <MenuItem Name="mHelpOpen" Header="Открыть Справку"/>
+                    <Separator></Separator>
+                    <MenuItem Name="mHelpAbout" Header="О программе"/>
+                </MenuItem>
+            </Menu>
+            <ToolBar>
+                <Button Name="bStart">Run</Button>
+                <Button Name="bStop">Stop</Button>
+                <Separator/>
+                <Button Name="bEye" Click="mRectEye_Click">Eye</Button>
+                <Button Name="bPoint" Click="mRectPoint_Click">Point</Button>
+            </ToolBar>
+        </StackPanel>
+        <!-- Grid 1 -->
+        <Border BorderBrush="Black" BorderThickness="2" Grid.Row="1" Grid.Column="0">
+            <Grid Name="ViewPort">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Viewbox Name="vbOriginsl" Grid.Row="0" Grid.Column="0">
+                    <Canvas Name="imgOriginal"
+                            MouseMove="imgOriginal_MouseMove" MouseLeave="imgOriginal_MouseLeave" MouseDown="imgOriginal_MouseDown" MouseUp="imgOriginal_MouseUp"/>
+
+                </Viewbox>
+                <Viewbox Name="vbResult" Grid.Row="0" Grid.Column="2">
+                    <Canvas Name="imgResult"
+                            MouseDown="imgResult_MouseDown" MouseLeave="imgResult_MouseLeave" MouseMove="imgResult_MouseMove" MouseUp="imgResult_MouseUp"/>
+                </Viewbox>
+                <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" ShowsPreview="True" Width="2" 
+                      HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="Black"/>
+                <GridSplitter Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" ShowsPreview="True" Height="2" 
+                      VerticalAlignment="Center" HorizontalAlignment="Stretch" Background="Black"/>
+                <Viewbox Name="vbVChanel" Grid.Row="2" Grid.Column="0">
+                    <Canvas Name="imgVChanel" 
+                            MouseDown="imgVChanel_MouseDown" MouseLeave="imgVChanel_MouseLeave" MouseMove="imgVChanel_MouseMove" MouseUp="imgVChanel_MouseUp"/>
+                </Viewbox>
+                <Viewbox Name="vbMasked" Grid.Row="2" Grid.Column="2">
+                    <Canvas Name="imgMasked"
+                            MouseDown="imgMasked_MouseDown" MouseLeave="imgMasked_MouseLeave" MouseMove="imgMasked_MouseMove" MouseUp="imgMasked_MouseUp"/>
+                </Viewbox>
+            </Grid>
+        </Border>
+        <GridSplitter Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" ShowsPreview="True" Width="2" 
+                      HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
+        <Grid Name="Properties" Grid.Row="1" Grid.Column="2" Grid.RowSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <GroupBox Header="Зрачок" Grid.Row="0">
+                <TreeView>
+                    <TreeViewItem Header="Основное" IsExpanded="True">
+                        <StackPanel Width="220">
+                            <Label>чувствительность</Label>
+                            <Slider Name="slZMain" Maximum="255" Minimum="0" Value="{Binding ElementName=slZVmax, Path=Value, Mode=TwoWay}"></Slider>
+                        </StackPanel>
+                    </TreeViewItem>
+                    <TreeViewItem Header="Дополнительно">
+                        <StackPanel Width="220">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0">H max</Label>
+                                <xctk:ByteUpDown Grid.Column="1" Name="slZHmax" Value="156" ValueChanged="slZHmax_ValueChanged" />
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0">H min</Label>
+                                <xctk:ByteUpDown Grid.Column="1" Name="slZHmin" Value="156" ValueChanged="slZHmin_ValueChanged" />
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0">S max</Label>
+                                <xctk:ByteUpDown Grid.Column="1" Name="slZSmax" Value="156" ValueChanged="slZSmax_ValueChanged" />
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0">S min</Label>
+                                <xctk:ByteUpDown Grid.Column="1" Name="slZSmin" Value="156" ValueChanged="slZSmin_ValueChanged" />
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0">V max</Label>
+                                <xctk:ByteUpDown Grid.Column="1" Name="slZVmax" Value="156" ValueChanged="slZVmax_ValueChanged" />
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0">V min</Label>
+                                <xctk:ByteUpDown Grid.Column="1" Name="slZVmin" Value="156" ValueChanged="slZVmin_ValueChanged" />
+                            </Grid>
+                        </StackPanel>
+                    </TreeViewItem>
+                </TreeView>
+            </GroupBox>
+            <GroupBox Header="Точка" Grid.Row="1">
+                <TreeView>
+                    <TreeViewItem Header="Основное" IsExpanded="True">
+                        <StackPanel Width="220">
+                            <Label>чувствительность</Label>
+                            <Slider Name="slPMain" Maximum="255" Minimum="0" Value="{Binding ElementName=slPVmax, Path=Value, Mode=TwoWay}"></Slider>
+                        </StackPanel>
+                    </TreeViewItem>
+                    <TreeViewItem Header="Дополнительно">
+                        <StackPanel Width="220">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0">H max</Label>
+                                <xctk:ByteUpDown Grid.Column="1" Name="slPHmax" Value="156" ValueChanged="slPHmax_ValueChanged"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0">H min</Label>
+                                <xctk:ByteUpDown Grid.Column="1" Name="slPHmin" Value="156" ValueChanged="slPHmin_ValueChanged"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0">S max</Label>
+                                <xctk:ByteUpDown Grid.Column="1" Name="slPSmax" Value="156" ValueChanged="slPSmax_ValueChanged"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0">S min</Label>
+                                <xctk:ByteUpDown Grid.Column="1" Name="slPSmin" Value="156" ValueChanged="slPSmin_ValueChanged"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0">V max</Label>
+                                <xctk:ByteUpDown Grid.Column="1" Name="slPVmax" Value="156" ValueChanged="slPVmax_ValueChanged"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0">V min</Label>
+                                <xctk:ByteUpDown Grid.Column="1" Name="slPVmin" Value="156" ValueChanged="slPVmin_ValueChanged"/>
+                            </Grid>
+                        </StackPanel>
+                    </TreeViewItem>
+                </TreeView>
+            </GroupBox>
+        </Grid>
+        <!-- Grid 2 -->
+        <Grid Name="Footer" Grid.Row="2" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Grid.Column="0">
+                <StackPanel Orientation="Horizontal">
+                    <Label>Текущий кадр:</Label>
+                    <xctk:IntegerUpDown Name="udFrmControl" Value="{Binding ElementName=slFrmControl, Path=Value, Mode=TwoWay}"/>
+                    <Label>Начало измерений:</Label>
+                    <xctk:IntegerUpDown Name="udFrmSelectionStart" Value="{Binding ElementName=slFrmControl, Path=SelectionStart, Mode=TwoWay}"/>
+                    <Label>Конец измерений:</Label>
+                    <xctk:IntegerUpDown Name="udFrmSelectionEnd" Value="{Binding ElementName=slFrmControl, Path=SelectionEnd, Mode=TwoWay}"/>
+                    <Button Name="bFrmAddGange" Margin="3,0" Click="bFrmAddGange_Click">Add</Button>
+                </StackPanel>
+                <Slider Name="slFrmControl" Maximum="10" Minimum="1" Value="1"
+                    TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="slFrmControl_ValueChanged"
+                    IsSelectionRangeEnabled="True" SelectionStart="1" SelectionEnd="10"></Slider>
+            </StackPanel>
+            <ScrollViewer Grid.Row="1" Grid.Column="0">
+                <StackPanel>
+                    <StackPanel Name="stGange0" Visibility="Hidden" Orientation="Horizontal">
+                        <Button Name="bFrmAddGange0" Margin="3,0,14,0" Click="bFrmAddGange_Click">Добавить диапозон</Button>
+                        <Label>Начало измерений:
+                        </Label>
+                        <xctk:IntegerUpDown Name="udFrmSelectionStart0" Value="{Binding ElementName=slFrmControl, Path=SelectionStart, Mode=TwoWay}"/>
+                        <Label>Конец измерений:</Label>
+                        <xctk:IntegerUpDown Name="udFrmSelectionEnd0" Value="{Binding ElementName=slFrmControl, Path=SelectionEnd, Mode=TwoWay}"/>
+                    </StackPanel>
+                    <StackPanel Name="stGange1" Visibility="Hidden" Orientation="Horizontal">
+                        <Button Name="bFrmAddGange1" Margin="3,0,14,0" Click="bFrmAddGange_Click">Добавить диапозон</Button>
+                        <Label>Начало измерений:
+                        </Label>
+                        <xctk:IntegerUpDown Name="udFrmSelectionStart1" Value="{Binding ElementName=slFrmControl, Path=SelectionStart, Mode=TwoWay}"/>
+                        <Label>Конец измерений:</Label>
+                        <xctk:IntegerUpDown Name="udFrmSelectionEnd1" Value="{Binding ElementName=slFrmControl, Path=SelectionEnd, Mode=TwoWay}"/>
+                    </StackPanel>
+                    <StackPanel Name="stGange2" Visibility="Hidden" Orientation="Horizontal">
+                        <Button Name="bFrmAddGange2" Margin="3,0,14,0" Click="bFrmAddGange_Click">Добавить диапозон</Button>
+                        <Label>Начало измерений:
+                        </Label>
+                        <xctk:IntegerUpDown Name="udFrmSelectionStart2" Value="{Binding ElementName=slFrmControl, Path=SelectionStart, Mode=TwoWay}"/>
+                        <Label>Конец измерений:</Label>
+                        <xctk:IntegerUpDown Name="udFrmSelectionEnd2" Value="{Binding ElementName=slFrmControl, Path=SelectionEnd, Mode=TwoWay}"/>
+                    </StackPanel>
+                    <StackPanel Name="stGange3" Visibility="Hidden" Orientation="Horizontal">
+                        <Button Name="bFrmAddGange3" Margin="3,0,14,0" Click="bFrmAddGange_Click">Добавить диапозон</Button>
+                        <Label>Начало измерений:
+                        </Label>
+                        <xctk:IntegerUpDown Name="udFrmSelectionStart3" Value="{Binding ElementName=slFrmControl, Path=SelectionStart, Mode=TwoWay}"/>
+                        <Label>Конец измерений:</Label>
+                        <xctk:IntegerUpDown Name="udFrmSelectionEnd3" Value="{Binding ElementName=slFrmControl, Path=SelectionEnd, Mode=TwoWay}"/>
+                    </StackPanel>
+                    <StackPanel Name="stGange4" Visibility="Hidden" Orientation="Horizontal">
+                        <Button Name="bFrmAddGange4" Margin="3,0,14,0" Click="bFrmAddGange_Click">Добавить диапозон</Button>
+                        <Label>Начало измерений:
+                        </Label>
+                        <xctk:IntegerUpDown Name="udFrmSelectionStart4" Value="{Binding ElementName=slFrmControl, Path=SelectionStart, Mode=TwoWay}"/>
+                        <Label>Конец измерений:</Label>
+                        <xctk:IntegerUpDown Name="udFrmSelectionEnd4" Value="{Binding ElementName=slFrmControl, Path=SelectionEnd, Mode=TwoWay}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>
